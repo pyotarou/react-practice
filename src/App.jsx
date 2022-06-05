@@ -1,39 +1,68 @@
-import React from "react";
-import { useEffect } from "react";
+import "./style.css"
 import { useState } from "react";
-import { ColorfulMessage } from "./components/ColorfulMessage";
+import { InputTodo } from "./components/InputTodo";
+import { IncompleteTodos } from "./components/IncompleteTodos";
+import { CompleteTodos } from "./components/CompleteTodos";
 
 const App = () => {
-	console.log("init")
-	const [num, setNum] = useState(0);
-	const [faceShowFlag, setFaceShowFlag] = useState(true)
+	const [todoText, setTodoText] = useState("")
+	const [incompleteTodos, setIncompleteTodos] = useState([])
+	const [completeTodos, setCompleteTodos] = useState([])
 
-	const onClickCountUp = () => {
-		setNum(num + 1)
-	};
-	const onClickSwitchShowFlag = () => {
-		setFaceShowFlag(!faceShowFlag);
-	};
+	const onChangeTodoText = (event) => setTodoText(event.target.value)
 
-	useEffect(() => {
-		if (num % 3 === 0) {
-			faceShowFlag || setFaceShowFlag(true);
-		} else {
-			faceShowFlag && setFaceShowFlag(false);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [num]);
+	const onClickAdd = () => {
+		if (todoText === "") return
+		const newTodos = [...incompleteTodos, todoText]
+		setIncompleteTodos(newTodos)
+		setTodoText("")
+	}
+
+
+	const onClickDelete = (index) => {
+		const newTodos = [...incompleteTodos]
+		newTodos.splice(index, 1)
+		setIncompleteTodos(newTodos)
+	}
+
+	const onClickComplete = (index) => {
+		const newIncompleteTodos = [...incompleteTodos]
+		newIncompleteTodos.splice(index, 1)
+
+		const newCompleteTodos = [...completeTodos, incompleteTodos[index]]
+		setIncompleteTodos(newIncompleteTodos)
+		setCompleteTodos(newCompleteTodos)
+	}
+
+	const onClickBack = (index) => {
+		const newCompleteTodos = [...completeTodos]
+		newCompleteTodos.splice(index, 1)
+
+		const newIncompleteTodos = [...incompleteTodos, completeTodos[index]]
+		setCompleteTodos(newCompleteTodos)
+		setIncompleteTodos(newIncompleteTodos)
+	}
 
 	return (
 		<>
-			<h1 style={{ color: 'red' }}>RED</h1>
-			<ColorfulMessage color="blue">BLUE</ColorfulMessage>
-			<ColorfulMessage color="pink">PINK</ColorfulMessage>
-			<button onClick={onClickCountUp}>カウントアップ</button>
-			<br />
-			<button onClick={onClickSwitchShowFlag}>on/off</button>
-			<p>{num}</p>
-			{faceShowFlag && <p>(^ ^)</p>}
+			<InputTodo
+				todoText={todoText}
+				onChange={onChangeTodoText}
+				onClick={onClickAdd}
+				disabled={incompleteTodos.length >= 5}
+			/>
+			{incompleteTodos.length >= 5 && (
+				<p style={{ color: "red" }}>登録できるTODOは5個までです。消化してください。</p>
+			)}
+			<IncompleteTodos
+				todos={incompleteTodos}
+				onClickComplete={onClickComplete}
+				onClickDelete={onClickDelete}
+			/>
+			<CompleteTodos
+				todos={completeTodos}
+				onClickBack={onClickBack}
+			/>
 		</>
 	);
 };
