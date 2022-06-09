@@ -18,7 +18,6 @@ const App = () => {
 		setTodoText("")
 	}
 
-
 	const onClickDelete = (index) => {
 		const newTodos = [...incompleteTodos]
 		newTodos.splice(index, 1)
